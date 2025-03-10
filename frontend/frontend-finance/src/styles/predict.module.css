@@ -1,0 +1,69 @@
+.container {
+    background-color: #f0f4ff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.navbar {
+    background-color: #2563eb;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 40px;
+    margin-right: 12px;
+}
+
+.title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.main {
+    max-width: 900px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.hiddenInput {
+    display: none;
+}
+
+.uploadButton {
+    background-color: #10b981;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: none;
+}
+
+.uploadButton:hover {
+    background-color: #059669;
+}
+
+.chart {
+    width: 100%;
+    height: 300px;
+}
