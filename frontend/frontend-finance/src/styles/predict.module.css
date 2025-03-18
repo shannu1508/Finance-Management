@@ -1,69 +1,208 @@
-.container {
-    background-color: #f0f4ff;
-    min-height: 100vh;
-    padding: 20px;
-}
-
+/* Navigation Bar Styles */
 .navbar {
-    background-color: #2563eb;
-    padding: 16px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.logoContainer {
-    display: flex;
-    align-items: center;
-}
-
-.logo {
-    height: 40px;
-    margin-right: 12px;
-}
-
-.title {
-    color: white;
-    font-size: 1.5rem;
+    padding: 1.2rem 3rem;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0; /* Added to ensure navbar stays aligned left */
+    right: 0; /* Added to ensure navbar spans full width */
+    width: 100%;
+    box-sizing: border-box; /* Added to include padding in width calculation */
+    z-index: 1000;
+  }
+  
+  .logo {
+    text-decoration: none;
+    color: #333;
+    font-size: 1.8rem;
     font-weight: bold;
-}
-
-.main {
-    max-width: 900px;
-    margin: 20px auto;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: transform 0.3s ease;
+  }
+  
+  .logo:hover {
+    transform: scale(1.05);
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .nav-links a:after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+  }
+  
+  .nav-links a:hover:after {
+    width: 100%;
+  }
+  
+.container {
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
-.card {
+.heading {
+    font-size: 2rem;
+    color: #1f2937;
+    margin-bottom: 20px;
+}
+body{
+    background: url('../assets/3852751.jpg') no-repeat center center;
+    background-size: cover;
+}
+.uploadSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     background: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.hiddenInput {
-    display: none;
+.fileInput {
+    padding: 10px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 .uploadButton {
-    background-color: #10b981;
+    background-color: #2563eb;
     color: white;
-    padding: 10px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
+    padding: 12px 20px;
     border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease-in-out;
 }
 
 .uploadButton:hover {
-    background-color: #059669;
+    background-color: #1e40af;
 }
 
-.chart {
-    width: 100%;
-    height: 300px;
+.uploadButton:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
 }
+
+.resultsSection {
+    margin-top: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.resultsTitle {
+    font-size: 1.5rem;
+    color: #374151;
+    margin-bottom: 15px;
+}
+
+.resultsList {
+    list-style: none;
+    padding: 0;
+}
+
+.resultItem {
+    font-size: 1.1rem;
+    color: #1f2937;
+    padding: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Loading text */
+.loadingText {
+    font-size: 1.2rem;
+    color: #f59e0b;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0.5;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.noResults {
+    font-size: 1rem;
+    color: #9ca3af;
+}
+.resultsContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resultsList {
+    flex: 1;
+    min-width: 250px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultItem {
+    font-size: 1.1rem;
+    color: #1f2937;
+    padding: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4f46e5;
+    padding-top: 10px;
+}
+.textResults {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+.chartContainer {
+    flex: 1;
+  }

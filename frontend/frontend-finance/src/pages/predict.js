@@ -1,92 +1,143 @@
-import React, { useState, useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
+import React, { useState } from 'react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import styles from '../styles/predict.module.css';
-
+import { uploadFile } from '../api/api';
+import { useAuth } from '../context/AuthContext';
+import { Link , useNavigate } from 'react-router-dom';
 const Predict = () => {
-    const chartRef = useRef(null);
+    const COLORS = ['#FF8042', '#8884d8', '#00C49F', '#FFBB28', '#FF4560', 
+    '#7D3C98', '#D35400', '#1ABC9C', '#3498DB', '#2ECC71'];
     const [file, setFile] = useState(null);
+    const [predictions, setPredictions] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { token, logout } = useAuth();
+    const chartData = predictions
+    ? Object.entries(predictions).map(([name, value]) => ({ name, value }))
+    : [];
 
-    useEffect(() => {
-        if (chartRef.current) {
-            const chart = echarts.init(chartRef.current);
-            const option = {
-                animation: false,
-                title: { text: 'Prediction Distribution' },
-                tooltip: { trigger: 'axis' },
-                legend: { data: ['Actual', 'Predicted'] },
-                xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
-                yAxis: { type: 'value' },
-                series: [
-                    { name: 'Actual', type: 'line', data: [820, 932, 901, 934, 1290, 1330, 1320] },
-                    { name: 'Predicted', type: 'line', data: [820, 932, 901, 934, 1290, 1330, 1320] }
-                ]
-            };
-            chart.setOption(option);
-            window.addEventListener('resize', () => chart.resize());
+  
+    const handleFileChange = (event) => setFile(event.target.files[0]);
+    const fetchWithAuth = async (url, options = {}) => {
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
+        });
+    
+        if (response.status === 401) {
+          await logout();
+          navigate('/login');
+          throw new Error('Session expired');
         }
-    }, []);
+        
+        return response;
+      };
+    
+      const handleUpload = async () => {
+        if (!file) return alert('Please select a file');
 
-    const handleFileChange = (event) => {
-        const selectedFile = event.target.files[0];
-        if (selectedFile) {
-            setFile(selectedFile);
+        setLoading(true);
+        setPredictions(null);
+
+        try {
+            const result = await uploadFile(file);
+            console.log("API Raw Response:", result);
+
+            const actualPredictions = result.predictions?.predictions || result.predictions || {};
+
+            if (actualPredictions && Object.keys(actualPredictions).length > 0) {
+                setPredictions(actualPredictions);
+            } else {
+                alert("No valid predictions received. Please check the backend.");
+            }
+        } catch (error) {
+            console.error("Error fetching predictions:", error);
+            alert("Error fetching predictions. Check console for details.");
+        } finally {
+            setLoading(false);
         }
     };
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
     return (
         <div className={styles.container}>
-            <nav className={styles.navbar}>
-                <div className={styles.navContent}>
-                    <img className={styles.logo} src="https://ai-public.creatie.ai/gen_page/logo_placeholder.png" alt="Logo" />
-                    <h1 className={styles.title}>Predictive Analytics Dashboard</h1>
-                </div>
-            </nav>
+            <nav>
+        <div className="navbar">
+          <a href="/" className="logo">
+           Personal Finance Manager
+          </a>
+          <ul className="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/track">Track</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li>
+     <a
+    role="button"
+    onClick={() => {
+      logout();
+      window.location.href = '/login';
+    }}
+    className="logout-btn"
+  >
+    Logout
+  </a>
+</li>
 
-            <main className={styles.main}>
-                <div className={styles.uploadSection}>
-                    <h2>Upload Your CSV File</h2>
-                    <p>Drag and drop your file here, or click to browse</p>
-                    <label className={styles.uploadBox}>
-                        <input type="file" id="fileInput" accept=".csv" onChange={handleFileChange} hidden />
-                        <i className="fas fa-cloud-upload-alt"></i>
-                        <button className={styles.uploadButton}>Browse Files</button>
-                        <p className={styles.fileInfo}>{file ? file.name : 'Supported format: CSV (max 10MB)'}</p>
-                    </label>
-                </div>
+          </ul>
+          <div className="menu-toggle">
+            <i className="fas fa-bars"></i>
+          </div>
+        </div>
+      </nav>
+            <h2 className={styles.heading}>Upload Your CSV File</h2>
+            <div className={styles.uploadSection}>
+                <input type="file" accept=".csv" onChange={handleFileChange} className={styles.fileInput} />
+                <button onClick={handleUpload} className={styles.uploadButton} disabled={loading}>
+                    {loading ? 'Uploading...' : 'Upload & Predict'}
+                </button>
+            </div>
 
-                <div className={styles.tableSection}>
-                    <h3>File Preview</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Feature 1</th>
-                                <th>Feature 2</th>
-                                <th>Feature 3</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Value A</td>
-                                <td>Value B</td>
-                                <td>Value C</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Value D</td>
-                                <td>Value E</td>
-                                <td>Value F</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            {predictions && (
+              <div className={styles.resultsSection}>
+                <h3 className={styles.resultsTitle}>Prediction Results</h3>
+            
+                <div className={styles.resultsContainer}>
+                <div className={styles.textResultsContainer}>
+                    <div className={styles.textResults}>
+                        <ul className={styles.resultsList}>
+                            {chartData.map(({ name, value }) => (
+                                <li key={name} className={styles.resultItem}>
+                                    <strong>{name}:</strong> ₹{value.toLocaleString()}
+                                </li>
+                            ))}
+                            <li className={styles.total}><strong>Total:</strong> ₹{total.toLocaleString()}</li>
+                        </ul>
+                    </div>
                 </div>
+                <div className={styles.chartContainer}>
+                    <ResponsiveContainer width={400} height={400}>
+                        <PieChart>
+                            <Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={120} fill="#8884d8" paddingAngle={5} dataKey="value">
+                                {chartData.map((_, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+            
+              </div>
+            )}
 
-                <div className={styles.chartSection}>
-                    <h3>Prediction Results</h3>
-                    <div ref={chartRef} className={styles.chart}></div>
-                </div>
-            </main>
+
         </div>
     );
 };

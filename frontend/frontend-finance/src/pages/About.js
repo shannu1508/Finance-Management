@@ -15,9 +15,9 @@ const About = () => {
           </a>
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
             <li><a href="/track">Track</a></li>
-            <li><a href="/login">Login</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href ="/predict">Predict</a></li>
           </ul>
           <div className="menu-toggle">
             <i className="fas fa-bars"></i>

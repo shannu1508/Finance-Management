@@ -10,13 +10,13 @@ const Home = () => {
       {/* Navigation Bar */}
       <nav>
         <div className="navbar">
-          <a href="#" className="logo">Personal Finance Manager
+          <a href="/" className="logo">Personal Finance Manager
           </a>
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
             <li><a href="/track">Track</a></li>
-            <li><a href="/predict">Predict</a></li>
+            
             <li><a href="/login">Login</a></li>
           </ul>
           <div className="menu-toggle">

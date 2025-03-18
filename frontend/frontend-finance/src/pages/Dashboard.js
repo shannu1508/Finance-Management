@@ -48,8 +48,10 @@ const Dashboard = () => {
     moment()
   ]);
 
-  const COLORS = ['#FF8042', '#8884d8', '#00C49F', '#FFBB28'];
-  const GRADIENT_COLORS = ['#FF6B8B', '#8884d8'];
+  const COLORS = ['#FF8042', '#8884d8', '#00C49F', '#FFBB28', '#FF4560', 
+    '#7D3C98', '#D35400', '#1ABC9C', '#3498DB', '#2ECC71']; // 10 Colors
+    const GRADIENT_COLORS = ['#FF6B8B', '#8884d8', '#00C49F', '#FFBB28', '#FF4560', 
+      '#7D3C98', '#D35400', '#1ABC9C', '#3498DB', '#2ECC71'];
 
   // Add time period options
   const timeOptions = [
@@ -61,92 +63,57 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+}, [selectedPeriod]);  
 
-  const fetchTransactions = async () => {
-    try {
+
+const fetchTransactions = async () => {
+  try {
       const token = localStorage.getItem('token');
-      
-      // Calculate date range based on selected period
       const endDate = moment().endOf('day');
-      let startDate;
-
-      switch (selectedPeriod) {
-        case 'week':
-          startDate = moment().subtract(1, 'week').startOf('day');
-          break;
-        case 'month':
-          startDate = moment().subtract(1, 'month').startOf('day');
-          break;
-        case 'year':
-          startDate = moment().subtract(1, 'year').startOf('day');
-          break;
-        case 'decade':
-          startDate = moment().subtract(10, 'years').startOf('day');
-          break;
-        default:
-          startDate = moment().subtract(1, 'month').startOf('day');
-      }
+      let startDate = getStartDate(selectedPeriod);
 
       const response = await axios.get('http://localhost:5000/api/transactions', {
-        headers: { Authorization: `Bearer ${token}` },
-        params: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString()
-        }
+          headers: { Authorization: `Bearer ${token}` },
+          params: { startDate: startDate.toISOString(), endDate: endDate.toISOString() }
       });
 
       if (response.data) {
-        const filteredTransactions = response.data.filter(transaction => 
-          moment(transaction.date).isBetween(startDate, endDate, 'day', '[]')
-        );
-        
-        setTransactions(filteredTransactions);
-        calculateStats(filteredTransactions);
+          setTransactions(response.data);
+          calculateStats(response.data);
       }
-      
       setLoading(false);
-    } catch (error) {
+  } catch (error) {
       console.error('Error fetching transactions:', error);
       setLoading(false);
-    }
-  };
+  }
+};
+const getStartDate = (period) => {
+  switch (period) {
+      case 'week': return moment().subtract(1, 'week').startOf('day');
+      case 'month': return moment().subtract(1, 'month').startOf('day');
+      case 'year': return moment().subtract(1, 'year').startOf('day');
+      default: return moment().subtract(1, 'month').startOf('day');
+  }
+};
 
-  const calculateStats = (filteredTransactions) => {
-    const income = filteredTransactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-    
-    const expense = filteredTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-    
-    const total = income - expense;
-    
-    setStats({
-      income: income,
-      expense: expense,
-      total: total
-    });
-  };
 
-  const preparePieData = () => {
-    const categoryData = {};
-    
-    transactions.forEach(t => {
+const calculateStats = (data) => {
+  const income = data.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
+  const expense = data.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
+  setStats({ income, expense, total: income - expense });
+};
+
+
+const preparePieData = () => {
+  const categoryData = {};
+  transactions.forEach(t => {
       if (t.type === 'expense') {
-        if (!categoryData[t.description]) {
-          categoryData[t.description] = 0;
-        }
-        categoryData[t.description] += Math.abs(Number(t.amount));
+          categoryData[t.description] = (categoryData[t.description] || 0) + Math.abs(Number(t.amount));
       }
-    });
-    
-    return Object.entries(categoryData)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-  };
+  });
+  return Object.entries(categoryData).map(([name, value]) => ({ name, value })).slice(0, 5);
+};
+
 
   const prepareChartData = () => {
     const dailyData = {};
@@ -224,7 +191,7 @@ const Dashboard = () => {
     });
 
     if (response.status === 401) {
-      logout();
+      await logout();
       navigate('/login');
       throw new Error('Session expired');
     }
@@ -339,14 +306,27 @@ const Dashboard = () => {
     <div style={{ backgroundColor: darkTheme.backgroundColor, padding: darkTheme.padding, minHeight: '100vh' }}>
       <nav>
         <div className="navbar">
-          <a href="#" className="logo">
-            <i className="fas fa-chart-bar"></i>Personal Finance Manager
+          <a href="/" className="logo">
+          Personal Finance Manager
           </a>
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
             <li><a href="/track">Track</a></li>
-            <li><a role="button" onClick={logout} className="logout-btn">Logout</a></li>
+            <li><a href="/predict">Predict</a></li>
+            <li>
+     <a
+    role="button"
+    onClick={() => {
+      logout();
+      window.location.href = '/login';
+    }}
+    className="logout-btn"
+  >
+    Logout
+  </a>
+</li>
+
           </ul>
           <div className="menu-toggle">
             <i className="fas fa-bars"></i>

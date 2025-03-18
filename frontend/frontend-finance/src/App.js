@@ -7,7 +7,6 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import './styles/style.css';
 import About from './pages/About';
-import PriceDrop from './pages/Price-drop';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 // import 'antd/dist/antd.css';
@@ -43,19 +42,27 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/dashboard" element={<Dashboard 
-            transactions={transactions} 
-            currency={currency} 
-          />} />
+          <Route path="/dashboard" element={ 
+    <ProtectedRoute>
+    <Dashboard transactions={transactions} currency={currency} />
+  </ProtectedRoute>
+} />
+
           <Route path="/about" element={<About />} />
-          <Route path='/transcations' element={<Transactions />} />
-          <Route path='/predict' element={<Predict />} />
-          {/* Add more routes as needed */}
-          {/* <Route path="/signup" element={<Signup />} /> */}
-          {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
-          {/* <Route path="/privacy" element={<Privacy />} /> */}
-          {/* <Route path="/terms" element={<Terms />} /> */}
-          {/* <Route path="/contact" element={<Contact />} /> */}
+          <Route path="/transcations" element={<Transactions />} />
+<Route path="/transactions" element={  
+    <ProtectedRoute>  
+      <Transactions />  
+    </ProtectedRoute>  
+  } />  
+
+          <Route path="/predict" element={  
+  <ProtectedRoute>  
+    <Predict />  
+  </ProtectedRoute>  
+} />  
+
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

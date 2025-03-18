@@ -1,16 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 
+dotenv.config();
+
+
+import predictRoutes from './routes/predict.js';
+dotenv.config();
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // Adjust to match your frontend URL
+  origin: 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
@@ -24,8 +30,8 @@ console.log('Email configuration:', {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'shanmukharaoadapaka123@gmail.com',
-    pass: 'vmiy fssp epgh aejk'
+    user: process.env.EMAIL,
+    pass: process.env.APP_PASS
   },
   tls: {
     rejectUnauthorized: false // This fixes the certificate issue
@@ -441,15 +447,16 @@ app.delete('/api/transactions/:primeId', auth, async (req, res) => {
 });
 
 // Export transactions by date range
-app.get('/api/transactions/export', async (req, res) => {
+app.get('/api/transactions/export', auth, async (req, res) => {
   try {
     const { fromDate, toDate } = req.query;
-    
+
     if (!fromDate || !toDate) {
       return res.status(400).json({ message: 'Please provide both fromDate and toDate' });
     }
 
     const transactions = await Transaction.find({
+      userId: req.user._id,
       date: {
         $gte: new Date(fromDate),
         $lte: new Date(toDate)
@@ -462,6 +469,7 @@ app.get('/api/transactions/export', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 app.post('/api/goals', auth, async (req, res) => {
   try {
@@ -518,6 +526,9 @@ app.post('/api/test-email', auth, async (req, res) => {
     });
   }
 });
+
+const upload = multer({ dest: 'uploads/' });
+app.use('/predict', upload.single('file'), predictRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

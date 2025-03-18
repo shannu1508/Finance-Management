@@ -349,72 +349,46 @@ const Track = () => {
       alert('Please select both start and end dates');
       return;
     }
-
-    // Filter transactions based on date range
-    const filtered = transactions.filter(t => {
-      const transactionDate = new Date(t.primeId);
-      return transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
-    });
-
-    if (filtered.length === 0) {
-      alert('No transactions found for the selected date range');
-      return;
-    }
-
-    setFilteredTransactions(filtered);
-    setShowFiltered(true);
-
-    const format = window.prompt("Select export format: PDF or CSV").toLowerCase();
-    const fileName = window.prompt("Enter file name to download") || "transactions";
-
-    if (format === "pdf") {
-      try {
-        const pdfMake = await import('pdfmake/build/pdfmake');
-        const pdfFonts = await import('pdfmake/build/vfs_fonts');
-        pdfMake.default.vfs = pdfFonts.default.pdfMake.vfs;
-        
-        const docDefinition = {
-          content: [{
-            table: {
-              headerRows: 1,
-              widths: ['auto', '*', 'auto', 'auto'],
-              body: [
-                ['Date', 'Description', 'Amount', 'Type'],
-                ...filtered.map(t => [
-                  formatDate(t.primeId),
-                  t.description,
-                  formatCurrency(t.amount, t.currency || currency),
-                  t.type
-                ])
-              ]
-            }
-          }]
-        };
-        pdfMake.default.createPdf(docDefinition).download(`${fileName}.pdf`);
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
+  
+    try {
+      const response = await fetchWithAuth(`http://localhost:5000/api/transactions/export?fromDate=${startDate}&toDate=${endDate}`);
+      if (!response.ok) {
+        throw new Error('Error fetching transactions for export');
       }
-    } else if (format === "csv") {
-      exportToCSV(filtered, fileName);
-    } else {
-      alert('Invalid export format. Please enter either "PDF" or "CSV".');
+  
+      const data = await response.json();
+      if (data.length === 0) {
+        alert('No transactions found for the selected date range');
+        return;
+      }
+  
+      setFilteredTransactions(data);
+      setShowFiltered(true);
+  
+      const fileName = window.prompt("Enter file name to download") || "transactions";
+      exportToCSV(data, fileName);
+      
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Failed to export data');
     }
   };
-
-  const exportToCSV = (filtered, fileName) => {
+  
+  // Function to export data to CSV
+  const exportToCSV = (transactions, fileName) => {
     const csvContent = 
       "Date,Description,Amount,Type\n" +
-      filtered.map(t => 
-        `${formatDate(t.primeId)},${t.description},${formatCurrency(t.amount, t.currency || currency)},${t.type}`
+      transactions.map(t => 
+        `${formatDate(t.date)},${t.description},${formatCurrency(t.amount, t.currency || currency)},${t.type}`
       ).join("\n");
-
+  
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${fileName}.csv`;
     link.click();
   };
+  
 
   // Update the saveGoals function to properly handle the request
   const saveGoals = async () => {
@@ -463,6 +437,7 @@ const Track = () => {
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/about">About</a></li>
+            <li><a href="/predict">Predict</a></li>
             <li><a href="/dashboard">Dashboard</a></li>
             <li><a role="button" onClick={logout} className="logout-btn">Logout</a></li>
           </ul>
@@ -593,7 +568,7 @@ const Track = () => {
 
             <div className="transaction-form">
               <select ref={descriptionRef}>
-                <option value="" disabled selected>Select type of expense</option>
+                <option value="" disabled selected>Select category type</option>
                 <option value="Salary">Salary</option>
                 <option value="Utilities">Utilities</option>
                 <option value="Groceries">Groceries</option>

@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import '../styles/Transcations.css';
 import '../styles/style.css';
+import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Transactions = () => {
+    const { token, logout } = useAuth();
     const [transactions, setTransactions] = useState([]);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
+    const navigate = useNavigate();
+
     const [filters, setFilters] = useState({
         fromDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         toDate: new Date().toISOString().split('T')[0],
@@ -26,6 +31,24 @@ const Transactions = () => {
         amount: '',
         category: ''
     });
+    const fetchWithAuth = async (url, options = {}) => {
+        const response = await fetch(url, {
+          ...options,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            ...options.headers,
+          },
+        });
+    
+        if (response.status === 401) {
+          logout();
+          navigate('/login');
+          throw new Error('Session expired');
+        }
+    
+        return response;
+      };
 
     const fetchTransactions = (filterParams) => {
         axios.get(`http://localhost:5000/api/transactions?startDate=${filterParams.fromDate}&endDate=${filterParams.toDate}`, {
@@ -179,6 +202,19 @@ const Transactions = () => {
                     <li><a href="/about">About</a></li>
                     <li><a href="/track">Track</a></li>
                     <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/predict">Predict</a></li>
+                    <li>
+     <a
+    role="button"
+    onClick={() => {
+      logout();
+      window.location.href = '/login';
+    }}
+    className="logout-btn"
+  >
+    Logout
+  </a>
+</li>
                 </ul>
             </nav>
 
