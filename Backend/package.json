@@ -4,7 +4,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "install-client": "cd ../frontend/frontend-finance && npm install",
+  "build-client": "cd ../frontend/frontend-finance && npm run build",
+  "start": "node server.js",
+  "heroku-postbuild": "npm run install-client && npm run build-client"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
