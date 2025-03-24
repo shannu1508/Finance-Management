@@ -4,7 +4,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem 3rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0); /* Fully transparent */
+    backdrop-filter: none; 
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
@@ -69,16 +70,14 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
+    background: url('../assets/3852751.jpg') no-repeat center center;
+    background-size: cover;
 }
 
 .heading {
     font-size: 2rem;
-    color: #1f2937;
+    color: #e3719d;
     margin-bottom: 20px;
-}
-body{
-    background: url('../assets/3852751.jpg') no-repeat center center;
-    background-size: cover;
 }
 .uploadSection {
     display: flex;
