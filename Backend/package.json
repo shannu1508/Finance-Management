@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  "install-client": "cd ../frontend/frontend-finance && npm install",
-  "build-client": "cd ../frontend/frontend-finance && npm run build",
-  "start": "node server.js",
-  "heroku-postbuild": "npm run install-client && npm run build-client"
-},
+    "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "node server.js"
+
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

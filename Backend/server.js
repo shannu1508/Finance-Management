@@ -1,5 +1,4 @@
 import express from 'express';
-import path from 'path';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
@@ -7,15 +6,13 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import { fileURLToPath } from 'url';
+
 dotenv.config();
 
 
 import predictRoutes from './routes/predict.js';
 dotenv.config();
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors({
@@ -23,11 +20,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../frontend/frontend-finance/build')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/frontend-finance/build', 'index.html'));
-});
 // Add email configuration after other configurations
 console.log('Email configuration:', {
   emailUser: process.env.EMAIL_USER ? 'Set' : 'Not set',
@@ -536,6 +529,7 @@ app.post('/api/test-email', auth, async (req, res) => {
 
 const upload = multer({ dest: 'uploads/' });
 app.use('/predict', upload.single('file'), predictRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
