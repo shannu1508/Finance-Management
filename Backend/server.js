@@ -1,17 +1,19 @@
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-
-dotenv.config();
-
-
+import multer from 'multer'; // Moved multer import to the correct position
+import User from './models/User.js';
+import Transaction from './models/Transaction.js';
 import predictRoutes from './routes/predict.js';
+
+
 dotenv.config();
+
+
 const app = express();
 
 // Middleware
@@ -68,70 +70,7 @@ const connectDB = async () => {
 // Call the connect function
 connectDB();
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  fullName: {
-    type: String,
-    required: true
-  },
-  mobile: {
-    type: String,
-    required: true
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  }
-}, {
-  timestamps: true
-});
-
-// Transaction Schema (updated to include user reference)
-const transactionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  primeId: {
-    type: Number,
-    required: true,
-    unique: true
-  },
-  description: String,
-  amount: Number,
-  type: String,
-  category: String,
-  date: {
-    type: Date,
-    default: Date.now
-  }
-}, {
-  timestamps: true
-});
-
-// Add a pre-save hook to auto-generate primeId if not provided
-transactionSchema.pre('save', async function(next) {
-  if (!this.primeId) {
-    const lastTransaction = await this.constructor.findOne({}, {}, { sort: { 'primeId': -1 } });
-    this.primeId = lastTransaction ? lastTransaction.primeId + 1 : 1;
-  }
-  next();
-});
-
-// Add this after your existing schemas
+// Define Goal schema and model (not extracted to separate file yet)
 const goalSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -150,8 +89,6 @@ const goalSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const User = mongoose.model('User', userSchema);
-const Transaction = mongoose.model('Transaction', transactionSchema);
 const Goal = mongoose.model('Goal', goalSchema);
 
 // Authentication middleware
@@ -503,7 +440,6 @@ app.get('/api/goals', auth, async (req, res) => {
 app.post('/api/test-email', auth, async (req, res) => {
   try {
     const testMailOptions = {
-      from: process.env.EMAIL_USER,
       to: req.user.email,
       subject: 'Test Email',
       html: '<h1>This is a test email</h1><p>If you received this, your email configuration is working correctly!</p>'
@@ -528,8 +464,10 @@ app.post('/api/test-email', auth, async (req, res) => {
 });
 
 const upload = multer({ dest: 'uploads/' });
-app.use('/predict', upload.single('file'), predictRoutes);
 
+// Mount predict routes
+// Note: file upload middleware is applied in the route handlers as needed
+app.use('/predict', predictRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

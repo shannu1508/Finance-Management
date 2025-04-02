@@ -20,23 +20,45 @@ export const uploadFile = async (file) => {
         return { error: "Failed to fetch predictions" };
     }
 };
+
 export const fetchFromDatabase = async () => {
     try {
+        // Get the token from localStorage
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('Authentication token not found');
+        }
+        
         const response = await fetch('http://localhost:5000/predict/database', {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
 
         if (!response.ok) {
-            // Handle non-2xx HTTP status codes
-            const errorData = await response.json(); // Attempt to parse error response
+            // Log full error response for debugging
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            
+            // Try to parse as JSON if possible
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: `HTTP error! status: ${response.status}` };
+            }
+            
             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 
-        return response.json();
+        const data = await response.json();
+        console.log('Database fetch response:', data); // Add debugging
+        return data;
     } catch (error) {
         console.error('Error fetching data from database:', error);
-        // Handle the error appropriately in your component
         throw error; // Re-throw the error to be handled in the component
     }
 };
