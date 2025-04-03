@@ -5,6 +5,86 @@ import '../styles/style.css';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Add animation styles directly in the component
+const animationStyles = `
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideInFromTop {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  @keyframes slideInFromLeft {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  @keyframes slideInFromBottom {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  @keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  .navbar-animated {
+    animation: slideInFromTop 0.5s ease forwards;
+  }
+  
+  .nav-item:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .filter-card {
+    animation: slideInFromLeft 0.5s ease 0.2s both;
+  }
+  
+  .transactions-header {
+    animation: slideInFromBottom 0.5s ease 0.3s both;
+  }
+  
+  .table-container-animated {
+    animation: slideInFromBottom 0.5s ease 0.4s both;
+  }
+  
+  .transaction-row {
+    animation: fadeIn 0.3s ease forwards;
+    transition: background-color 0.2s ease;
+  }
+  
+  .transaction-row:hover {
+    background-color: rgba(0,0,0,0.03);
+  }
+  
+  .selected-row {
+    background-color: rgba(0,0,0,0.05);
+  }
+  
+  .selected-transaction-details {
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  .btn:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+  }
+  
+  .btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  .modal-content-animated {
+    animation: scaleIn 0.3s ease forwards;
+  }
+`;
+
 const Transactions = () => {
     const { token, logout } = useAuth();
     const [transactions, setTransactions] = useState([]);
@@ -31,6 +111,7 @@ const Transactions = () => {
         amount: '',
         category: ''
     });
+    
     const fetchWithAuth = async (url, options = {}) => {
         const response = await fetch(url, {
           ...options,
@@ -195,32 +276,35 @@ const Transactions = () => {
 
     return (
         <div className="container-fluid mt-3">
-            <nav className="navbar">
+            {/* Add the animation styles */}
+            <style>{animationStyles}</style>
+            
+            <nav className="navbar navbar-animated">
                 <a href="#" className="logo">Personal Finance Manager</a>
                 <ul className="nav-links">
-                    <li><a href="/home">Home</a></li>
-                    <li><a href="/about">About</a></li>
-                    <li><a href="/track">Track</a></li>
-                    <li><a href="/dashboard">Dashboard</a></li>
-                    <li><a href="/predict">Predict</a></li>
-                    <li>
-     <a
-    role="button"
-    onClick={() => {
-      logout();
-      window.location.href = '/login';
-    }}
-    className="logout-btn"
-  >
-    Logout
-  </a>
-</li>
+                    <li className="nav-item"><a href="/home">Home</a></li>
+                    <li className="nav-item"><a href="/about">About</a></li>
+                    <li className="nav-item"><a href="/track">Track</a></li>
+                    <li className="nav-item"><a href="/dashboard">Dashboard</a></li>
+                    <li className="nav-item"><a href="/predict">Predict</a></li>
+                    <li className="nav-item">
+                        <a
+                            role="button"
+                            onClick={() => {
+                                logout();
+                                window.location.href = '/login';
+                            }}
+                            className="logout-btn"
+                        >
+                            Logout
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
             <div className="row" style={{ marginTop: '7rem' }}>
                 <div className="col-md-3">
-                    <div className="card p-3" style={{ marginTop: '1rem' }}>
+                    <div className="card p-3 filter-card" style={{ marginTop: '1rem' }}>
                         <h5>Filters</h5>
                         <form onSubmit={handleFilterSubmit}>
                             <label>From</label>
@@ -276,7 +360,9 @@ const Transactions = () => {
                                 />
                                 <label className="form-check-label" htmlFor="pending">Pending</label>
                             </div>
-                            <button type="submit" className="btn btn-primary mt-2 w-100">Filter</button>
+                            <button type="submit" className="btn btn-primary mt-2 w-100">
+                                Filter
+                            </button>
                             <button 
                                 type="button" 
                                 className="btn btn-secondary mt-2 w-100"
@@ -289,17 +375,17 @@ const Transactions = () => {
                 </div>
 
                 <div className="col-md-9">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3 transactions-header">
                         <h3>Transactions</h3>
                         {selectedTransaction && (
-                            <div className="selected-transaction-details">
-                                <p><strong>Date:</strong> {new Date(selectedTransaction.date).toLocaleDateString()}</p>
-                                <p><strong>Description:</strong> {selectedTransaction.description}</p>
-                                <p><strong>Amount:</strong> {selectedTransaction.amount} {selectedTransaction.currency}</p>
-                            </div>
+                           <div className="selected-transaction-details">
+                              <p><strong>Date:</strong> {new Date(selectedTransaction.date).toLocaleDateString()}</p>
+                              <p><strong>Description:</strong> {selectedTransaction.description}</p>
+                              <p><strong>Amount:</strong> {selectedTransaction.amount} {selectedTransaction.currency}</p>
+                           </div>
                         )}
-                    </div>
-                    <div className="table-container">
+                     </div>
+                    <div className="table-container table-container-animated">
                         <table className="table table-striped">
                             <thead>
                                 <tr>
@@ -315,7 +401,8 @@ const Transactions = () => {
                                     <tr 
                                         key={txn.primeId || index} 
                                         onClick={() => handleTransactionClick(txn)}
-                                        className={selectedTransaction?.primeId === txn.primeId ? 'selected-row' : ''}
+                                        className={`transaction-row ${selectedTransaction?.primeId === txn.primeId ? 'selected-row' : ''}`}
+                                        style={{ animationDelay: `${index * 0.05}s` }}
                                     >
                                         <td>{new Date(txn.date).toLocaleDateString()}</td>
                                         <td>{txn.description}</td>
@@ -360,7 +447,7 @@ const Transactions = () => {
             {showEditModal && (
                 <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog" role="document">
-                        <div className="modal-content">
+                        <div className="modal-content modal-content-animated">
                             <div className="modal-header">
                                 <h5 className="modal-title">Edit Transaction</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
@@ -444,7 +531,7 @@ const Transactions = () => {
             {showDeleteModal && (
                 <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog" role="document">
-                        <div className="modal-content">
+                        <div className="modal-content modal-content-animated">
                             <div className="modal-header">
                                 <h5 className="modal-title">Confirm Delete</h5>
                                 <button type="button" className="btn-close" onClick={() => setShowDeleteModal(false)}></button>

@@ -160,7 +160,10 @@ const Predict = () => {
             <nav>
                 <div className="navbar">
                     <a href="/" className="logo">
-                        Personal Finance Manager
+                        <div className="site-logo">
+                            <img src="/logo.jpg" alt="Finance Manager" />
+                        </div>
+                        <span>Personal Finance Manager</span>
                     </a>
                     <ul className="nav-links">
                         <li><a href="/">Home</a></li>
@@ -189,7 +192,7 @@ const Predict = () => {
             <div className={styles.uploadSection}>
                 <div className={styles.optionContainer}>
                     <h3 className={styles.uploadSubheading}>Select Data Source</h3>
-                    <div className={styles.optionSection}>
+                <div className={styles.optionSection}>
                         <label className={`${styles.optionLabel} ${source === 'csv' ? styles.optionActive : ''}`}>
                             <input 
                                 type="radio" 
@@ -200,7 +203,7 @@ const Predict = () => {
                             />
                             <span className={styles.optionIcon}>📄</span>
                             <span className={styles.optionText}>Upload CSV</span>
-                        </label>
+                    </label>
                         <label className={`${styles.optionLabel} ${source === 'database' ? styles.optionActive : ''}`}>
                             <input 
                                 type="radio" 
@@ -211,7 +214,7 @@ const Predict = () => {
                             />
                             <span className={styles.optionIcon}>🗄️</span>
                             <span className={styles.optionText}>Fetch from Database</span>
-                        </label>
+                    </label>
                     </div>
                 </div>
 
@@ -254,7 +257,7 @@ const Predict = () => {
                 <div className={styles.resultsSection} ref={resultsRef}>
                     <div className={styles.resultsHeader}>
                         <span className={styles.resultsIcon}>📊</span>
-                        <h3 className={styles.resultsTitle}>Prediction Results</h3>
+                    <h3 className={styles.resultsTitle}>Prediction Results</h3>
                     </div>
 
                     <div className={styles.resultsContainer}>
@@ -316,7 +319,7 @@ const Predict = () => {
                                                 fontWeight={600}
                                                 fill="#3b82f6"
                                             />
-                                        </Pie>
+                                    </Pie>
                                         <Tooltip 
                                             formatter={(value, name) => [`₹${value.toLocaleString()} (${getPercentage(value)})`, name]}
                                             contentStyle={{
@@ -332,10 +335,10 @@ const Predict = () => {
                                             height={36} 
                                             iconType="circle"
                                         />
-                                    </PieChart>
+    </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                        </div>
+</div>
                     </div>
                     <div className={styles.actionButtons}>
                         <button 

@@ -13,7 +13,12 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <h1 className="navbar-logo">Finance App</h1>
+        <Link to="/" className="navbar-logo">
+          <div className="site-logo">
+            <img src="/logo.jpg" alt="Finance Manager" />
+          </div>
+          <span className="logo-text">Finance Manager</span>
+        </Link>
         <div className="menu-icon" onClick={toggleNavbar}>
           <i className={isOpen ? 'fas fa-times' : 'fas fa-bars'} />
         </div>

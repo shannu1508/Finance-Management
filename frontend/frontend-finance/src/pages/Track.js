@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Track.css';
-import boardImage from '../assets/board.jpg'; // Import the image
 
 const Track = () => {
   const { token, logout } = useAuth();
@@ -19,7 +18,7 @@ const Track = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [showGoalModal, setShowGoalModal] = useState(false);
   const [goals, setGoals] = useState({
-    Salary: 0,
+    'Total Amount': 0,
     Utilities: 0,
     Groceries: 0,
     Transportation: 0,
@@ -37,6 +36,22 @@ const Track = () => {
   const amountRef = useRef(null);
   const typeRef = useRef(null);
   const dateRef = useRef(null);
+
+  // Add state to track if animations are visible
+  const [animationVisible, setAnimationVisible] = useState(true);
+
+  // Function to add delay for entrance animations
+  useEffect(() => {
+    // Set animation visible to false initially
+    setAnimationVisible(false);
+    
+    // Add small delay before triggering animations
+    const timer = setTimeout(() => {
+      setAnimationVisible(true);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Updated formatCurrency function with null check
   const formatCurrency = (amount, currencyCode) => {
@@ -427,6 +442,129 @@ const Track = () => {
     }));
   };
 
+  // Get appropriate icon for each category
+  const getCategoryIcon = (category) => {
+    const icons = {
+      'Total Amount': 'fa-money-bill-wave',
+      'Utilities': 'fa-bolt',
+      'Groceries': 'fa-shopping-basket',
+      'Transportation': 'fa-car',
+      'Housing': 'fa-home',
+      'Food & Dinning': 'fa-utensils',
+      'Shopping': 'fa-shopping-bag',
+      'Education': 'fa-graduation-cap',
+      'Entertainment': 'fa-film',
+      'Health': 'fa-heartbeat',
+      'Others': 'fa-star'
+    };
+    
+    return icons[category] || 'fa-dollar-sign';
+  };
+
+  // Update the resetGoals function
+  const resetGoals = async () => {
+    const confirmed = window.confirm("Are you sure you want to reset all your financial goals?");
+    if (!confirmed) return;
+    
+    try {
+      // Send empty goals object to clear all goals
+      const response = await fetchWithAuth('http://localhost:5000/api/goals', {
+        method: 'POST',
+        body: JSON.stringify({ goals: {} })
+      });
+
+      if (response.ok) {
+        // Reset local state
+        setGoals({
+          'Total Amount': 0,
+          Utilities: 0,
+          Groceries: 0,
+          Transportation: 0,
+          Housing: 0,
+          'Food & Dinning': 0,
+          Shopping: 0,
+          Education: 0,
+          Entertainment: 0,
+          Health: 0,
+          Others: 0
+        });
+        
+        // Show success notification
+        setNotification({
+          show: true,
+          message: 'All goals have been reset!',
+          type: 'success'
+        });
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+          setNotification({ show: false, message: '', type: '' });
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reset goals');
+      }
+    } catch (error) {
+      console.error('Error resetting goals:', error);
+      
+      // Show error notification
+      setNotification({
+        show: true,
+        message: 'Error resetting goals. Please try again.',
+        type: 'error'
+      });
+      
+      setTimeout(() => {
+        setNotification({ show: false, message: '', type: '' });
+      }, 3000);
+    }
+  };
+
+  // Add a function to calculate the width percentage for goal bars
+  const calculateBarWidth = (category, amount) => {
+    // Find the maximum goal amount to use as reference for percentage
+    const maxGoal = Math.max(...Object.values(goals));
+    
+    // Ensure we have a valid divisor
+    if (maxGoal <= 0) return 0;
+    
+    // Calculate percentage (minimum 10% for visibility)
+    const percentage = Math.max(10, (amount / maxGoal) * 100);
+    
+    // Cap at 100%
+    return Math.min(100, percentage);
+  };
+
+  // Add dynamic color generator for goals
+  const getGoalColor = (category) => {
+    const colorMap = {
+      'Total Amount': '#4caf50',
+      'Utilities': '#f44336',
+      'Groceries': '#ff9800',
+      'Transportation': '#2196f3',
+      'Housing': '#9c27b0',
+      'Food & Dinning': '#e91e63',
+      'Shopping': '#00bcd4',
+      'Education': '#3f51b5',
+      'Entertainment': '#ff5722',
+      'Health': '#009688',
+      'Others': '#607d8b'
+    };
+    
+    return colorMap[category] || `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+  };
+
+  // Add a function to determine background gradient based on balance
+  const getBackgroundGradient = () => {
+    if (balance > 1000) {
+      return 'linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(33, 150, 243, 0.15))';
+    } else if (balance < 0) {
+      return 'linear-gradient(135deg, rgba(244, 67, 54, 0.15), rgba(156, 39, 176, 0.15))';
+    } else {
+      return 'linear-gradient(135deg, rgba(255, 152, 0, 0.15), rgba(121, 85, 72, 0.15))';
+    }
+  };
+
   return (
     <>
       <nav>
@@ -480,42 +618,97 @@ const Track = () => {
 
         <div className="tracker-container">
           <div className="image-container">
-            <img src={boardImage} alt="Finance Illustration" />
-            <button 
-              className="set-goal-btn modern-button"
-              onClick={() => setShowGoalModal(true)}
-            >
-              <i className="fas fa-bullseye"></i>
-              Set Your Goals
-            </button>
+            <div className="finance-animation" style={{ background: getBackgroundGradient() }}>
+              <div className="animation-header">
+                <h3>Your Financial Goals</h3>
+              </div>
+              <div className="animation-content">
+                <div className="animated-visualization">
+                  <div className="floating-icons-container">
+                    {Object.keys(goals).map((category, index) => (
+                      <div 
+                        key={category} 
+                        className={`floating-icon ${animationVisible ? 'visible' : ''}`}
+                        style={{ 
+                          animationDelay: `${index * 0.2}s`,
+                          animationDuration: `${5 + index % 3}s`
+                        }}
+                      >
+                        <div className="icon-bubble">
+                          <i className={`fas ${getCategoryIcon(category)}`}></i>
+                        </div>
+                        <span className="icon-label">{category}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="animated-circles">
+                    <div className="circle circle1"></div>
+                    <div className="circle circle2"></div>
+                    <div className="circle circle3"></div>
+                    <div className="circle circle4"></div>
+                    <div className="circle circle5"></div>
+                  </div>
+                  <div className="central-goal-icon">
+                    <i className="fas fa-bullseye"></i>
+                  </div>
+                </div>
+                <div className="set-goal-button-container">
+                  <button 
+                    className="set-goal-btn-inside"
+                    onClick={() => setShowGoalModal(true)}
+                  >
+                    <i className="fas fa-bullseye"></i>
+                    <span>Set Your Goals</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Add the Modal */}
           {showGoalModal && (
             <div className="goal-modal">
               <div className="goal-modal-content">
-                <h2>Set Your Financial Goals</h2>
+                <div className="goal-modal-header">
+                  <h2><i className="fas fa-bullseye"></i> Set Your Financial Goals</h2>
+                  <button 
+                    className="close-modal-btn modal-close-top" 
+                    onClick={() => setShowGoalModal(false)}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                  <p className="goal-subheading">Define spending limits for each category to better manage your finances</p>
+                </div>
+                
                 <div className="goal-grid">
                   {Object.keys(goals).map(category => (
                     <div key={category} className="goal-item">
-                      <label>{category}</label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={goals[category] || ''}
-                        onChange={(e) => handleGoalUpdate(category, e.target.value)}
-                        placeholder={`Set ${category} goal`}
-                      />
+                      <div className="goal-icon">
+                        <i className={`fas ${getCategoryIcon(category)}`}></i>
+                      </div>
+                      <div className="goal-details">
+                        <label>{category}</label>
+                        <div className="goal-input-wrapper">
+                          <span className="currency-symbol">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={goals[category] || ''}
+                            onChange={(e) => handleGoalUpdate(category, e.target.value)}
+                            placeholder="Set limit"
+                          />
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
                 <div className="goal-modal-buttons">
                   <button onClick={saveGoals} className="save-goals-btn">
-                    Save Goals
+                    <i className="fas fa-check"></i> Save Goals
                   </button>
-                  <button onClick={() => setShowGoalModal(false)} className="close-modal-btn">
-                    Close
+                  <button onClick={resetGoals} className="reset-goals-btn">
+                    <i className="fas fa-undo"></i> Reset
                   </button>
                 </div>
               </div>
@@ -569,7 +762,7 @@ const Track = () => {
             <div className="transaction-form">
               <select ref={descriptionRef}>
                 <option value="" disabled selected>Select category type</option>
-                <option value="Salary">Salary</option>
+                <option value="Total Amount">Total Amount</option>
                 <option value="Utilities">Utilities</option>
                 <option value="Groceries">Groceries</option>
                 <option value="Transportation">Transportation</option>

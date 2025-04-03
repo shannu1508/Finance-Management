@@ -6,6 +6,7 @@ import Track from './pages/Track';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import './styles/style.css';
+import './styles/global-logo.css';
 import About from './pages/About';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
