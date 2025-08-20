@@ -25,7 +25,7 @@ app.use(cors({
   ],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json()); //hello
 
 // Add email configuration after other configurations
 console.log('Email configuration:', {
