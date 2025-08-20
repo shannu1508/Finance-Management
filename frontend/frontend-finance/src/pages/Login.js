@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import styles from '../styles/Login.module.css';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -15,7 +18,7 @@ const Login = () => {
 
   const validateEmail = async (email) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/check-email', {
+      const response = await fetch('https://finance-management-6rzz.onrender.com/api/auth/check-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,7 +33,7 @@ const Login = () => {
         setIsEmailValid(false);
         return false;
       }
-      
+
       setIsEmailValid(true);
       setError('');
       return true;
@@ -64,7 +67,7 @@ const Login = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

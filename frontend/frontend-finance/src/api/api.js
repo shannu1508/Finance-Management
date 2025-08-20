@@ -1,9 +1,12 @@
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 export const uploadFile = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:5000/predict', {
+        const response = await fetch(`${API_BASE_URL}/predict`, {
             method: 'POST',
             body: formData,
         });
@@ -25,14 +28,14 @@ export const fetchFromDatabase = async () => {
     try {
         // Get the token from localStorage
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
             throw new Error('Authentication token not found');
         }
-        
-        const response = await fetch('http://localhost:5000/predict/database', {
+
+        const response = await fetch(`${API_BASE_URL}/predict/database`, {
             method: 'GET',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
@@ -42,7 +45,7 @@ export const fetchFromDatabase = async () => {
             // Log full error response for debugging
             const errorText = await response.text();
             console.error('Error response:', errorText);
-            
+
             // Try to parse as JSON if possible
             let errorData;
             try {
@@ -50,7 +53,7 @@ export const fetchFromDatabase = async () => {
             } catch (e) {
                 errorData = { error: `HTTP error! status: ${response.status}` };
             }
-            
+
             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
 

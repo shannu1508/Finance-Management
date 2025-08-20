@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../styles/Signup.module.css';
 
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 const Signup = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
@@ -34,7 +37,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

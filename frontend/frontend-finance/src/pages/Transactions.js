@@ -5,6 +5,9 @@ import '../styles/style.css';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 // Add animation styles directly in the component
 const animationStyles = `
   @keyframes fadeIn {
@@ -132,7 +135,7 @@ const Transactions = () => {
       };
 
     const fetchTransactions = (filterParams) => {
-        axios.get(`http://localhost:5000/api/transactions?startDate=${filterParams.fromDate}&endDate=${filterParams.toDate}`, {
+        axios.get(`${API_BASE_URL}/api/transactions?startDate=${filterParams.fromDate}&endDate=${filterParams.toDate}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -222,7 +225,7 @@ const Transactions = () => {
     const confirmEdit = () => {
         if (!editingTransaction) return;
 
-        axios.put(`http://localhost:5000/api/transactions/${editingTransaction.primeId}`, 
+        axios.put(`${API_BASE_URL}/api/transactions/${editingTransaction.primeId}`,
             editForm,
             {
                 headers: {
@@ -255,7 +258,7 @@ const Transactions = () => {
     const confirmDelete = () => {
         if (!transactionToDelete) return;
 
-        axios.delete(`http://localhost:5000/api/transactions/${transactionToDelete.primeId}`, {
+        axios.delete(`${API_BASE_URL}/api/transactions/${transactionToDelete.primeId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }

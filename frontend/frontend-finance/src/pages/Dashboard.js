@@ -26,6 +26,9 @@ import {
 import { Card, Row, Col, DatePicker, Statistic, Radio } from 'antd';
 import moment from 'moment';
 
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 // Theme configuration
 const darkTheme = {
   backgroundColor: '#1a1b3a',
@@ -72,7 +75,7 @@ const fetchTransactions = async () => {
       const endDate = moment().endOf('day');
       let startDate = getStartDate(selectedPeriod);
 
-      const response = await axios.get('http://localhost:5000/api/transactions', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { startDate: startDate.toISOString(), endDate: endDate.toISOString() }
       });

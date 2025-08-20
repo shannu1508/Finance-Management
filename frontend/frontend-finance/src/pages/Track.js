@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Track.css';
 
+// Backend API Configuration
+const API_BASE_URL = 'https://finance-management-6rzz.onrender.com'; // Deployed backend URL
+
 const Track = () => {
   const { token, logout } = useAuth();
   const navigate = useNavigate();
@@ -139,7 +142,7 @@ const Track = () => {
   useEffect(() => {
     const fetchTransactionsAndBalance = async () => {
       try {
-        const response = await fetchWithAuth('http://localhost:5000/api/transactions');
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/transactions`);
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
@@ -164,7 +167,7 @@ const Track = () => {
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await fetchWithAuth('http://localhost:5000/api/goals');
+        const response = await fetchWithAuth(`${API_BASE_URL}/api/goals`);
         if (response.ok) {
           const goalsData = await response.json();
           if (Array.isArray(goalsData) && goalsData.length > 0) {
@@ -220,7 +223,7 @@ const Track = () => {
     };
 
     try {
-      const response = await fetchWithAuth('http://localhost:5000/api/transactions', {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -269,7 +272,7 @@ const Track = () => {
   // Update delete transaction
   const deleteTransaction = async (primeId) => {
     try {
-      const response = await fetchWithAuth(`http://localhost:5000/api/transactions/${primeId}`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/transactions/${primeId}`, {
         method: 'DELETE'
       });
 
@@ -319,7 +322,7 @@ const Track = () => {
     };
 
     try {
-      const response = await fetchWithAuth(`http://localhost:5000/api/transactions/${editedTransaction.primeId}`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/transactions/${editedTransaction.primeId}`, {
         method: 'PUT',
         body: JSON.stringify(updatedTransaction)
       });
@@ -366,7 +369,7 @@ const Track = () => {
     }
   
     try {
-      const response = await fetchWithAuth(`http://localhost:5000/api/transactions/export?fromDate=${startDate}&toDate=${endDate}`);
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/transactions/export?fromDate=${startDate}&toDate=${endDate}`);
       if (!response.ok) {
         throw new Error('Error fetching transactions for export');
       }
@@ -413,7 +416,7 @@ const Track = () => {
         Object.entries(goals).filter(([_, value]) => value > 0)
       );
 
-      const response = await fetchWithAuth('http://localhost:5000/api/goals', {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/goals`, {
         method: 'POST',
         body: JSON.stringify({ goals: validGoals })
       });
@@ -468,7 +471,7 @@ const Track = () => {
     
     try {
       // Send empty goals object to clear all goals
-      const response = await fetchWithAuth('http://localhost:5000/api/goals', {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/goals`, {
         method: 'POST',
         body: JSON.stringify({ goals: {} })
       });
