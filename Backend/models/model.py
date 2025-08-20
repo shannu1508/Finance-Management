@@ -6,7 +6,6 @@ import traceback
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-
 def predict_expenses(file_path):
     try:
         print(f"Loading data from: {file_path}", file=sys.stderr)

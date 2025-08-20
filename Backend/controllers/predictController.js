@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 // Helper function to run the prediction model
 const runPredictionModel = (filePath) => {
     return new Promise((resolve, reject) => {
-        const pythonProcess = spawn('C:\\Users\\Mohan Rao\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 
+        const pythonProcess = spawn('C:\\Users\\shanm\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 
             ['models/model.py', filePath]);
         
         let output = '';

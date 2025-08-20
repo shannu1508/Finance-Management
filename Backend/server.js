@@ -18,7 +18,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: [
+    'http://localhost:3000',
+    'https://statuesque-chebakia-1eb7f2.netlify.app/', // For local development
+    /https:\/\/.*\.netlify\.app$/ // Allow any Netlify subdomain
+  ],
   credentials: true
 }));
 app.use(express.json());
